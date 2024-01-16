@@ -6,16 +6,12 @@ import java.util.Random;
 
 public class DinnerConstructor {
     HashMap<String, ArrayList<String>> dishMap = new HashMap<>();
-    ArrayList<String> comboRequest = new ArrayList<>();
     Random random = new Random();
-    CompareLists compareLists = new CompareLists();
-    boolean dishExist = false;
 
-    public void addNewDish(String typeOfDish, String nameOfDish) {           // Добавляем блюда
-        dishExist = false;
+    public boolean addNewDish(String typeOfDish, String nameOfDish) {           // Добавляем блюда
+        boolean dishExist = false;
         if (dishMap.containsKey(typeOfDish)) {
-            if(dishMap.get(typeOfDish).contains(nameOfDish)){
-                System.out.println("Такое блюдо уже есть.");
+            if (dishMap.get(typeOfDish).contains(nameOfDish)) {
                 dishExist = true;
             } else {
                 dishMap.get(typeOfDish).add(nameOfDish);
@@ -25,9 +21,11 @@ public class DinnerConstructor {
             dishList.add(nameOfDish);
             dishMap.put(typeOfDish, dishList);
         }
+        return dishExist;
     }
 
     public int getMaxCombo() {                     // Вычисляем возможное количество неповторяющихся наборов
+        ArrayList<String> comboRequest = Main.getComboRequest();
         int maxCombo = 1;
         for (String dishType : comboRequest) {
             maxCombo = maxCombo * dishMap.get(dishType).size();
@@ -35,21 +33,18 @@ public class DinnerConstructor {
         return maxCombo;
     }
 
-    public void writeComboRequest(String item) {      // Запрос типов блюд в наборах
-        if (!dishMap.containsKey(item)) {
-            System.out.println("Такого типа блюд у нас нет.");
-        } else {
-            comboRequest.add(item);
-        }
+    public HashMap<String, ArrayList<String>> getDishMap() {
+        return dishMap;
     }
 
-    public void setDishCombos(int quantityCombos) {                 //Формируем наборы
+    public ArrayList<ArrayList<String>> formDishCombos(int quantityCombos) {                 //Формируем наборы
         int maxCombos = getMaxCombo();
         int count = 0;
         if (quantityCombos > maxCombos) {
             quantityCombos = maxCombos;              //Ограничиваем выбор максимальным значением комбинаций наборов
         }
         ArrayList<ArrayList<String>> combosOffer = new ArrayList<>();
+        ArrayList<String> comboRequest = Main.getComboRequest();
         while (count < quantityCombos) {
             ArrayList<String> dishSet = new ArrayList<>();
             for (String dishType : comboRequest) {
@@ -57,16 +52,13 @@ public class DinnerConstructor {
                 String randomDish = dishMap.get(dishType).get(index);
                 dishSet.add(randomDish);
             }
-            if (count > 0 && compareLists.equals(combosOffer, dishSet)) {
+            if (count > 0 && CompareLists.equals(combosOffer, dishSet)) {
                 continue;
             }
             combosOffer.add(dishSet);
             count++;
         }
-        for (int i = 0; i < combosOffer.size(); i++) {
-            System.out.println("Комбо " + (i + 1));
-            System.out.println(combosOffer.get(i));
-        }
         comboRequest.clear();
+        return combosOffer;
     }
 }
